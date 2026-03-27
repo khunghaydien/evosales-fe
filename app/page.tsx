@@ -338,24 +338,6 @@ export default function LandingPage() {
                 <p className="text-foreground/80 text-base md:text-lg">
                   {t("hero.subtitle")}
                 </p>
-                {/* <div className="flex flex-col sm:flex-row gap-3">
-                  <Button
-                    type="primary"
-                    variant="solid"
-                    size="large"
-                    onClick={() => scrollToSection("features")}
-                  >
-                    {t("hero.primaryCta")}
-                  </Button>
-                  <Button
-                    type="default"
-                    variant="outlined"
-                    size="large"
-                    onClick={() => scrollToSection("features")}
-                  >
-                    {t("hero.secondaryCta")}
-                  </Button>
-                </div> */}
               </div>
 
               <LandingMockChat />
@@ -363,7 +345,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section
+        {/* <section
           id="pricing"
           className="scroll-mt-16 py-16"
         >
@@ -374,7 +356,7 @@ export default function LandingPage() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
 
         <footer className="py-10 border-t border-border">
           <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">

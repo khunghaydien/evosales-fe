@@ -2,15 +2,22 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 type ConversationSide = "left" | "right";
-type ConversationMessage = { side: ConversationSide; text: string };
+type ConversationMessage = {
+  side: ConversationSide;
+  text: string;
+  imageUrl?: string;
+};
 
 export function LandingMockChat() {
   const t = useTranslations("landing");
 
   const mockYouLabel = t("mock.you");
   const mockSalesLabel = t("mock.partnerTag");
+  const bubble18ImageUrl =
+    "https://tomato-geographical-tick-314.mypinata.cloud/ipfs/bafybeiaujuk3fb3u254kqe4hofcoz6po4mhvhapvtwdqqdp4wzgw4aj75q";
 
   const mockConversation: ConversationMessage[] = useMemo(
     () => [
@@ -20,8 +27,42 @@ export function LandingMockChat() {
       { side: "right", text: t("mock.bubble2Rep") },
       { side: "left", text: t("mock.bubble3You") },
       { side: "right", text: t("mock.bubble3Rep") },
+      { side: "left", text: t("mock.bubble4You") },
+      { side: "right", text: t("mock.bubble4Rep") },
+      { side: "left", text: t("mock.bubble5You") },
+      { side: "right", text: t("mock.bubble5Rep") },
+      { side: "left", text: t("mock.bubble6You") },
+      { side: "right", text: t("mock.bubble6Rep") },
+      { side: "left", text: t("mock.bubble7You") },
+      { side: "right", text: t("mock.bubble7Rep") },
+      { side: "left", text: t("mock.bubble8You") },
+      { side: "right", text: t("mock.bubble8Rep") },
+      { side: "left", text: t("mock.bubble9You") },
+      { side: "right", text: t("mock.bubble9Rep") },
+      { side: "left", text: t("mock.bubble10You") },
+      { side: "right", text: t("mock.bubble10Rep") },
+      { side: "left", text: t("mock.bubble11You") },
+      { side: "right", text: t("mock.bubble11Rep") },
+      { side: "left", text: t("mock.bubble12You") },
+      { side: "right", text: t("mock.bubble12Rep") },
+      { side: "left", text: t("mock.bubble13You") },
+      { side: "right", text: t("mock.bubble13Rep") },
+      { side: "left", text: t("mock.bubble14You") },
+      { side: "right", text: t("mock.bubble14Rep") },
+      { side: "left", text: t("mock.bubble15You") },
+      { side: "right", text: t("mock.bubble15Rep") },
+      { side: "left", text: t("mock.bubble16You") },
+      { side: "right", text: t("mock.bubble16Rep") },
+      { side: "left", text: t("mock.bubble17You") },
+      { side: "right", text: t("mock.bubble17Rep") },
+      { side: "left", text: t("mock.bubble18You") },
+      { side: "right", text: t("mock.bubble18Rep"), imageUrl: bubble18ImageUrl },
+      { side: "left", text: t("mock.bubble19You") },
+      { side: "right", text: t("mock.bubble19Rep") },
+      { side: "left", text: t("mock.bubble20You") },
+      { side: "right", text: t("mock.bubble20Rep") },
     ],
-    [t]
+    [bubble18ImageUrl, t]
   );
 
   const mockConversationKey = useMemo(
@@ -150,6 +191,18 @@ export function LandingMockChat() {
                   )}
                 </div>
                 <p className="mt-2 text-sm text-foreground/80">{m.text}</p>
+                {m.imageUrl ? (
+                  <div className="mt-3">
+                    <Image
+                      src={m.imageUrl}
+                      alt="Mock product image"
+                      width={360}
+                      height={360}
+                      unoptimized
+                      className="h-auto max-h-[260px] w-full rounded-xl border border-border object-cover"
+                    />
+                  </div>
+                ) : null}
               </div>
             ))}
             <div ref={mockChatBottomRef} />

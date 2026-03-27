@@ -302,14 +302,14 @@ export default function LandingPage() {
               >
                 {t("auth.signIn")}
               </Button>
-              <Button
+              {/* <Button
                 type="default"
                 variant="outlined"
                 size="large"
                 onClick={() => router.push("/sign-up")}
               >
                 {t("auth.signUp")}
-              </Button>
+              </Button> */}
               <div className="md:hidden flex items-center gap-2">
                 <ThemeToggle />
                 <LanguageToggle />
@@ -338,7 +338,7 @@ export default function LandingPage() {
                 <p className="text-foreground/80 text-base md:text-lg">
                   {t("hero.subtitle")}
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3">
+                {/* <div className="flex flex-col sm:flex-row gap-3">
                   <Button
                     type="primary"
                     variant="solid"
@@ -355,7 +355,7 @@ export default function LandingPage() {
                   >
                     {t("hero.secondaryCta")}
                   </Button>
-                </div>
+                </div> */}
               </div>
 
               <LandingMockChat />

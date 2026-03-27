@@ -2,10 +2,88 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { AuthGuard } from "@/components/auth/AuthGuard";
-import { useKnowledgeEmbeddings } from "@/hooks/useKnowledgeEmbeddings";
+import { PageConversationsTab } from "@/components/pages/detail/PageConversationsTab";
+import { PageFaqsTab } from "@/components/pages/detail/PageFaqsTab";
+import { PageProductsTab } from "@/components/pages/detail/PageProductsTab";
 import { usePageDetail, useDeletePage } from "@/hooks/usePages";
+import type { PageItem } from "@/services/pages.service";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button, Card, Empty, List, Popconfirm, Space, Spin, Tag } from "antd";
+import {
+  Button,
+  Card,
+  Popconfirm,
+  Space,
+  Spin,
+  Tabs,
+} from "antd";
+
+function jsonPreview(value: unknown) {
+  if (value === null || value === undefined) return "(empty)";
+  const s = JSON.stringify(value, null, 2);
+  return s.length > 2000 ? `${s.slice(0, 2000)}…` : s;
+}
+
+function GeneralTabContent({ page }: { page: PageItem }) {
+  const scalars: { key: string; value: string }[] = [
+    { key: "ID", value: page.id },
+    { key: "Page ID", value: page.pageId },
+    { key: "User ID", value: page.userId },
+    { key: "Created", value: new Date(page.createdAt).toLocaleString() },
+    { key: "Updated", value: new Date(page.updatedAt).toLocaleString() },
+  ];
+
+  return (
+    <Space orientation="vertical" size={16} className="w-full">
+      {scalars.map((entry) => (
+        <p key={entry.key} className="mb-0">
+          <strong>{entry.key}:</strong> {entry.value}
+        </p>
+      ))}
+      <div>
+        <p className="mb-2 font-semibold">System prompt</p>
+        <p className="mb-0 mt-0 whitespace-pre-wrap break-words">
+          {page.systemPrompt || "(empty)"}
+        </p>
+      </div>
+      <div>
+        <p className="mb-2 font-semibold">AI config</p>
+        <pre className="max-h-48 overflow-auto rounded border border-border bg-muted/30 p-3 text-xs">
+          {jsonPreview(page.aiConfig)}
+        </pre>
+      </div>
+      <div>
+        <p className="mb-2 font-semibold">Templates</p>
+        <pre className="max-h-48 overflow-auto rounded border border-border bg-muted/30 p-3 text-xs">
+          {jsonPreview(page.templates)}
+        </pre>
+      </div>
+      <div>
+        <p className="mb-2 font-semibold">Order ship config</p>
+        <pre className="max-h-48 overflow-auto rounded border border-border bg-muted/30 p-3 text-xs">
+          {jsonPreview(page.orderShipConfig)}
+        </pre>
+      </div>
+      <div>
+        <p className="mb-2 font-semibold">Order collection config</p>
+        <pre className="max-h-48 overflow-auto rounded border border-border bg-muted/30 p-3 text-xs">
+          {jsonPreview(page.orderCollectionConfig)}
+        </pre>
+      </div>
+      <div>
+        <p className="mb-2 font-semibold">RAG config</p>
+        <pre className="max-h-48 overflow-auto rounded border border-border bg-muted/30 p-3 text-xs">
+          {jsonPreview(page.ragConfig)}
+        </pre>
+      </div>
+      <div>
+        <p className="mb-2 font-semibold">Order config</p>
+        <pre className="max-h-48 overflow-auto rounded border border-border bg-muted/30 p-3 text-xs">
+          {jsonPreview(page.orderConfig)}
+        </pre>
+      </div>
+    </Space>
+  );
+}
 
 export default function PageDetailRoute() {
   const router = useRouter();
@@ -13,25 +91,12 @@ export default function PageDetailRoute() {
   const id = params?.id ?? null;
 
   const { data: page, isLoading: isPageLoading } = usePageDetail(id);
-  const { data: chunks, isLoading: isChunksLoading } = useKnowledgeEmbeddings(
-    page?.pageId ?? null
-  );
   const deleteMutation = useDeletePage();
-
-  const detailEntries = page
-    ? [
-      { key: "ID", value: page.id },
-      { key: "Page ID", value: page.pageId },
-      { key: "User ID", value: page.userId },
-      { key: "Created", value: new Date(page.createdAt).toLocaleString() },
-      { key: "Updated", value: new Date(page.updatedAt).toLocaleString() },
-    ]
-    : [];
 
   return (
     <AuthGuard>
       <section className="w-full p-4">
-        <div className="w-full flex flex-col gap-4">
+        <div className="flex w-full flex-col gap-4">
           <div className="flex items-center justify-between">
             <Button icon={<ArrowLeftOutlined />} onClick={() => router.push("/pages")}>
               Back to pages
@@ -40,9 +105,7 @@ export default function PageDetailRoute() {
               <Space>
                 <Button
                   type="default"
-                  onClick={() => {
-                    router.push(`/pages/${page.id}/edit`);
-                  }}
+                  onClick={() => router.push(`/pages/${page.id}/edit`)}
                 >
                   Edit
                 </Button>
@@ -52,11 +115,8 @@ export default function PageDetailRoute() {
                   cancelText="Cancel"
                   okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
                   onConfirm={() => {
-                    if (!page) return;
                     deleteMutation.mutate(page.id, {
-                      onSuccess: () => {
-                        router.push("/pages");
-                      },
+                      onSuccess: () => router.push("/pages"),
                     });
                   }}
                 >
@@ -67,66 +127,37 @@ export default function PageDetailRoute() {
               </Space>
             )}
           </div>
-          <Card
-            title="Page detail"
-          >
+
+          <Card>
             {isPageLoading || !page ? (
               <div className="flex min-h-[200px] items-center justify-center">
                 <Spin />
               </div>
             ) : (
-              <Space orientation="vertical" size={12} className="w-full">
-                {detailEntries.map((entry) => (
-                  <p key={entry.key}>
-                    <strong>{entry.key}:</strong> {entry.value}
-                  </p>
-                ))}
-                <div>
-                  <p className="font-semibold">Access tokens:</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {page.accessTokens.length ? (
-                      page.accessTokens.map((token) => (
-                        <Tag key={token} className="max-w-full break-all">
-                          {token.length > 24 ? `${token.slice(0, 24)}...` : token}
-                        </Tag>
-                      ))
-                    ) : (
-                      <span className="text-text-muted">No token</span>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <p className="font-semibold">Sale prompt:</p>
-                  <p className="mb-0 mt-2 whitespace-pre-wrap break-words">
-                    {page.salePrompt || "(empty)"}
-                  </p>
-                </div>
-              </Space>
-            )}
-          </Card>
-          <Card title="Embedded chunks">
-            {isChunksLoading ? (
-              <div className="flex min-h-[140px] items-center justify-center">
-                <Spin />
-              </div>
-            ) : !chunks?.length ? (
-              <Empty description="No chunk for this page" />
-            ) : (
-              <List
-                bordered
-                dataSource={chunks}
-                renderItem={(chunk, index) => (
-                  <List.Item>
-                    <Space orientation="vertical" size={4} className="w-full">
-                      <span className="text-text-muted">
-                        Chunk {index + 1} - {chunk.id}
-                      </span>
-                      <p className="mb-0 whitespace-pre-wrap">
-                        {chunk.chunk}
-                      </p>
-                    </Space>
-                  </List.Item>
-                )}
+              <Tabs
+                defaultActiveKey="general"
+                items={[
+                  {
+                    key: "general",
+                    label: "General",
+                    children: <GeneralTabContent page={page} />,
+                  },
+                  {
+                    key: "products",
+                    label: "Products",
+                    children: <PageProductsTab pageUuid={page.id} />,
+                  },
+                  {
+                    key: "faqs",
+                    label: "FAQs",
+                    children: <PageFaqsTab pageUuid={page.id} />,
+                  },
+                  {
+                    key: "conversations",
+                    label: "Conversations",
+                    children: <PageConversationsTab pageUuid={page.id} />,
+                  },
+                ]}
               />
             )}
           </Card>

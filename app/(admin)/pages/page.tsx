@@ -1,41 +1,82 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { TableSkeleton } from "@/components/common/TableSkeleton";
 import { usePagesList } from "@/hooks/usePages";
+import type { PageItem } from "@/services/pages.service";
 import { Empty, Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
 
-const columns = [
-  {
-    title: "Page ID",
-    dataIndex: "pageId",
-    key: "pageId",
-  },
-  {
-    title: "Page UUID",
-    dataIndex: "id",
-    key: "id",
-  },
-  {
-    title: "Updated At",
-    dataIndex: "updatedAt",
-    key: "updatedAt",
-  },
-];
+const SKELETON_KEYS = [
+  "pageId",
+  "id",
+  "userId",
+  "systemPrompt",
+  "createdAt",
+  "updatedAt",
+  "aiConfig",
+  "templates",
+  "orderShipConfig",
+  "orderCollectionConfig",
+  "ragConfig",
+  "orderConfig",
+] as const;
+
+const skeletonColumns = SKELETON_KEYS.map((k) => ({
+  title: k,
+  key: k,
+}));
+
+function formatListCell(key: string, value: unknown): React.ReactNode {
+  if (value === null || value === undefined) return "—";
+  if (Array.isArray(value)) {
+    return `${value.length} items`;
+  }
+  if (typeof value === "object") {
+    const s = JSON.stringify(value);
+    return s.length > 48 ? `${s.slice(0, 48)}…` : s;
+  }
+  if (typeof value === "string" && /At$/.test(key)) {
+    const d = new Date(value);
+    if (!Number.isNaN(d.getTime())) return d.toLocaleString();
+  }
+  if (typeof value === "string" && value.length > 48) {
+    return `${value.slice(0, 48)}…`;
+  }
+  return String(value);
+}
+
+function columnsFromPages(pages: PageItem[] | undefined): ColumnsType<PageItem> {
+  const sample = pages?.[0];
+  const keys = sample
+    ? (Object.keys(sample) as (keyof PageItem)[])
+    : [...SKELETON_KEYS];
+  return keys.map((key) => ({
+    title: String(key),
+    dataIndex: key,
+    key: String(key),
+    ellipsis: true,
+    render: (_: unknown, record: PageItem) =>
+      formatListCell(String(key), record[key]),
+  }));
+}
 
 export default function PagesListRoute() {
   const router = useRouter();
-  const { data: pages, isLoading, isFetching } = usePagesList();
+  const { data: pages, isLoading } = usePagesList();
 
-  if (isFetching) {
+  const columns = useMemo(() => columnsFromPages(pages), [pages]);
+
+  if (isLoading) {
     return (
       <AuthGuard>
         <section className="w-full p-4">
-          <TableSkeleton
-            columns={columns}
-            rowCount={12}
-          />
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Pages</h2>
+          </div>
+          <TableSkeleton columns={skeletonColumns} rowCount={12} />
         </section>
       </AuthGuard>
     );
@@ -54,9 +95,9 @@ export default function PagesListRoute() {
             Create page
           </button>
         </div>
-        <Table
+        <Table<PageItem>
           rowKey="id"
-          loading={isLoading}
+          loading={false}
           dataSource={pages ?? []}
           locale={{
             emptyText: <Empty description="No pages yet" />,

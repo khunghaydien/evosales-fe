@@ -1,24 +1,47 @@
 import { authAxiosService } from "./axios.service";
 
+export type PageAiConfig = {
+  [key: string]: unknown;
+} | null;
+
+export type PageTemplates = {
+  [key: string]: unknown;
+} | null;
+
 export interface PageItem {
   id: string;
   userId: string;
   pageId: string;
-  accessTokens: string[];
-  salePrompt: string | null;
+  systemPrompt: string | null;
+  aiConfig: PageAiConfig;
+  templates: PageTemplates;
+  orderShipConfig: Record<string, unknown> | null;
+  orderCollectionConfig: Record<string, unknown> | null;
+  ragConfig: Record<string, unknown> | null;
+  orderConfig: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreatePagePayload {
   pageId: string;
-  accessTokens: string[];
-  salePrompt?: string | null;
+  systemPrompt?: PageItem["systemPrompt"];
+  aiConfig?: PageItem["aiConfig"];
+  templates?: PageItem["templates"];
+  orderShipConfig?: PageItem["orderShipConfig"];
+  orderCollectionConfig?: PageItem["orderCollectionConfig"];
+  ragConfig?: PageItem["ragConfig"];
+  orderConfig?: PageItem["orderConfig"];
 }
 
 export interface UpdatePagePayload {
-  accessTokens?: string[];
-  salePrompt?: string | null;
+  systemPrompt?: PageItem["systemPrompt"];
+  aiConfig?: PageItem["aiConfig"];
+  templates?: PageItem["templates"];
+  orderShipConfig?: PageItem["orderShipConfig"];
+  orderCollectionConfig?: PageItem["orderCollectionConfig"];
+  ragConfig?: PageItem["ragConfig"];
+  orderConfig?: PageItem["orderConfig"];
 }
 
 export type MutationResponse<T> = T & {

@@ -2,21 +2,13 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { AuthGuard } from "@/components/auth/AuthGuard";
-import { useKnowledgeEmbeddings } from "@/hooks/useKnowledgeEmbeddings";
 import { usePageDetail, useUpdatePage } from "@/hooks/usePages";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button, Card, Form, Input, Spin } from "antd";
 
 type EditPageFormValues = {
-  accessTokensInput: string;
-  salePrompt?: string;
+  systemPrompt?: string;
 };
-
-const parseTokens = (value: string): string[] =>
-  value
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean);
 
 export default function EditPageRoute() {
   const router = useRouter();
@@ -24,7 +16,6 @@ export default function EditPageRoute() {
   const id = params?.id ?? null;
 
   const { data: page, isLoading } = usePageDetail(id);
-  useKnowledgeEmbeddings(page?.pageId ?? null); // keep prefetch behaviour, even if not shown here
 
   const [form] = Form.useForm<EditPageFormValues>();
   const updateMutation = useUpdatePage();
@@ -35,8 +26,7 @@ export default function EditPageRoute() {
       {
         id: page.id,
         payload: {
-          accessTokens: parseTokens(values.accessTokensInput),
-          salePrompt: values.salePrompt?.trim() || null,
+          systemPrompt: values.systemPrompt?.trim() || null,
         },
       },
       {
@@ -67,27 +57,15 @@ export default function EditPageRoute() {
                 layout="vertical"
                 form={form}
                 initialValues={{
-                  accessTokensInput: page.accessTokens.join(", "),
-                  salePrompt: page.salePrompt ?? "",
+                  systemPrompt: page.systemPrompt ?? "",
                 }}
                 onFinish={handleSubmit}
                 autoComplete="off"
               >
-                <Form.Item
-                  label="Access tokens"
-                  name="accessTokensInput"
-                  rules={[{ required: true, message: "Please input access tokens" }]}
-                >
-                  <Input.TextArea
-                    rows={3}
-                    placeholder="token1, token2, token3"
-                  />
-                </Form.Item>
-
-                <Form.Item label="Sale prompt" name="salePrompt">
+                <Form.Item label="System prompt" name="systemPrompt">
                   <Input.TextArea
                     rows={4}
-                    placeholder="Optional prompt to guide sales conversation"
+                    placeholder="Optional system prompt for this page"
                   />
                 </Form.Item>
 

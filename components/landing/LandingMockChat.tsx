@@ -168,7 +168,7 @@ export function LandingMockChat() {
 
       <div className="mt-6 flex flex-col gap-3">
         <div
-          className="h-[61vh] overflow-x-hidden pr-2"
+          className="h-[61vh] overflow-hidden pr-2"
           ref={mockChatScrollRef}
         >
           <div className="flex flex-col gap-3 pb-2">

@@ -373,7 +373,6 @@ export default function LandingPage() {
                 <PricingCard key={card.key} card={card} />
               ))}
             </div>
-
           </div>
         </section>
 
